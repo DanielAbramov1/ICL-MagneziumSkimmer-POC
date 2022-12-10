@@ -1,2 +1,2 @@
 # ICL-MagneziumSkimmer-POC
-This project is ICL Magnezium skimmer POC with robotic arm UR10e for POC demonstration using ROBODK API
+This project is ICL Magnezium skimmer POC with robotic arm UR10e for POC demonstration using RoboDK API
