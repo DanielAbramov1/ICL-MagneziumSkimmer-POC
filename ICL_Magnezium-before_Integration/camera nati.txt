@@ -1,0 +1,47 @@
+import time
+import sys
+import telnetlib
+import re
+
+HOST = '192.168.1.32' #Camera IP port 23
+user = 'admin'
+password = ''
+
+#Connect via Telnet
+tn = telnetlib.Telnet(HOST)
+tn.read_until(b'User: ',5)
+tn.write(user.encode('ascii') + b'\r\n') #the user name is admin
+tn.read_until(b'Password: ',5)
+tn.write(password.encode('ascii') + b'\r\n') #there is no password - just return - now logged in
+tmp = tn.read_until(b'\r\n',5).decode('utf-8')
+if(tmp != 'User Logged In\r\n' ): # If OK prints 'User Logged In'
+    print('Login Error!')
+
+#Image acquiring,Update & internal Temp read (case temp ~3 celsius less)
+while True:
+    tn.write(b'SW8\r\n') #Acquire an image and update the spreadsheet. This option requires the AcquireImage function's Trigger parameter to be set to External, Manual or Network. For more information, see AcquireImage.
+
+    if(tn.read_until(b'\r\n',5)):# Succsesful Update
+        # Get Image Internal Temp
+        tn.write(b'EV GetSystemConfig("Internal.Temperature")\r\n')
+        if (tn.read_until(b'\r\n',5)): #Returns 1 if OK + line buffer
+            tn.read_until(b'\r\n',5).decode('utf-8') #Packet Byte size - line buffer
+            Temp = tn.read_until(b'</',5).decode('utf-8')
+            # Temp = Temp[8:10]
+            # print(time.time())
+            position = Temp.find("<String>")
+
+            Temp = Temp[position:]
+            Temp = Temp.replace("<String>", "")
+            Temp = Temp.replace("</", "")
+
+
+            print(f"{Temp}")
+
+
+
+        else:
+            print('Temp reading Error!')
+    time.sleep(10)
+
+
